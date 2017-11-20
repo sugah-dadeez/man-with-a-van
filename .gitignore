@@ -2,4 +2,4 @@
 .gitignore
 .idea/
 __pycache__/
-config.json
+config.jsonenv/
