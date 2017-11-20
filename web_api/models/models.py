@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+from web_api.models import db
 
 
 class PhoneVerify(db.Model):
