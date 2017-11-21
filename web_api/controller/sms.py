@@ -1,23 +1,31 @@
 from twilio.rest import Client
 
+class SMSClient:
+    client = None
+    twilio_from_number = ""
 
-class TwilioClient:
-  client = None
-  twilio_from_number = ""
+    def __init__(self, account_sid, auth_token, from_number):
+        self.from_number = from_number
+        # self.twilio_account_sid = account_sid
+        # self.twilio_auth_token = auth_token
+        self.client = Client(account_sid, auth_token)
 
-  def init(self, app):
-    self.client = Client(app.config['TWILIO_ACCOUNT_SID'], app.config['TWILIO_AUTH_TOKEN'])
-    self.twilio_from_number = app.config['TWILIO_FROM_NUMBER']
+    def send(self, message_text, to):
+        self.client.api.account.messages.create(
+            to=to,
+            from_=self.from_number,
+            body=message_text
+        )
 
-  def send_sms(self, message_text, to_phone_number):
-    self.client.api.account.messages.create(
-      to=to_phone_number,
-      from_=self.twilio_from_number,
-      body=message_text)
+    @classmethod
+    def from_app(cls, app):
+        cfg = app.config
+        assert 'TWILIO_ACCOUNT_SID' in cfg, 'missing twilio account id'
+        assert 'TWILIO_AUTH_TOKEN' in cfg, 'missing twilio auth token'
+        assert 'TWILIO_FROM_NUMBER' in cfg, 'missing twilio from number'
 
-
-twilio_client = TwilioClient()
-
-
-def init(app):
-  twilio_client.init(app)
+        return cls(
+            account_sid=cfg['TWILIO_ACCOUNT_SID'],
+            auth_token=cfg['TWILIO_AUTH_TOKEN'],
+            from_number=cfg['TWILIO_FROM_NUMBER']
+        )

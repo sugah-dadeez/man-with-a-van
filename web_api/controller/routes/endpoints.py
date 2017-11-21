@@ -5,13 +5,12 @@ from datetime import datetime, timedelta
 
 from flask import request, make_response, Blueprint, jsonify
 
-from .clients import twilio_client
-from .models import db, PhoneVerify, User
+from web_api.sms import twilio_client
+from web_api.models import db, PhoneVerify, User
 
-api = Blueprint('api', __name__)
+bp = Blueprint('api', __name__)
 
-
-@api.route("/phone-registration", methods=["POST"])
+@bp.route("/phone-registration", methods=["POST"])
 def phone_registration():
   """
 
@@ -34,10 +33,11 @@ def phone_registration():
 
   twilio_client.send_sms(message_text, phone_number)
 
+  # TODO: respond with proper json
   return make_response("", 200)
 
 
-@api.route("/verify-phone", methods=["POST"])
+@bp.route("/verify-phone", methods=["POST"])
 def verify_phone():
   """
 

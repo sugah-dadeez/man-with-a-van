@@ -1,15 +1,15 @@
 import logging
+import os
+import yaml
 from flask import Flask
 from flask_cors import CORS
 from .controller import routes, helpers, errors
 from .models import db
 
-def create_app(config, debug=False, testing=False, config_overrides=None):
+def create_app(debug=False, raise_errors=False):
     """
     :param config:
     :param debug:
-    :param testing:
-    :param config_overrides:
     :return:
     """
 
@@ -21,10 +21,12 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     # register error handler
     errors.register_error_handlers(app)
 
-    app.config.from_object(config)
+    configure_app(app)
+    # app.config.from_object(config)
     app.debug = debug
-    app.testing = testing
+    app.config['RAISE_ERRORS'] = raise_errors
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'secret_key'
 
     db.init_app(app)
 
@@ -32,20 +34,26 @@ def create_app(config, debug=False, testing=False, config_overrides=None):
     # if not app.testing:
     #     logging.basicConfig(level=logging.INFO)
 
-    # Setup the data models, clients
-    with app.app_context():
-    models.init(app)
-    clients.init(app)
-
-    # Register API Endpoints
-    app.register_blueprint(api, url_prefix='/api')
-
     # register blueprints
     app.register_blueprint(routes.ping.bp, url_prefix='/ping')
-    app.register_blueprint(routes.data.bp, url_prefix='/data')
+    app.register_blueprint(routes.auth.bp, url_prefix='/auth')
 
     return app
 
-def create_db():
+def configure_app(app):
+    assert 'FLASK_CONFIG' in os.environ, 'missing FLASK_CONFIG in environment'
+    fp = os.environ.get('FLASK_CONFIG')
+
+    with open(fp, 'r') as f:
+        conf_obj = yaml.load(f)
+
+    app.config['EXTERNAL_URL'] = conf_obj['external_url']
+    app.config['SQLALCHEMY_DATABASE_URI'] = conf_obj['db']['url']
+    app.config['TWILIO_ACCOUNT_SID'] = conf_obj['twilio']['account_sid']
+    app.config['TWILIO_AUTH_TOKEN'] = conf_obj['twilio']['auth_token']
+    app.config['TWILIO_FROM_NUMBER'] = conf_obj['twilio']['from_number']
+
+def reset_db():
+    app = create_app()
     with app.app_context():
         db.create_all()

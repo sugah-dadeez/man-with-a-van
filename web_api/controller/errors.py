@@ -31,7 +31,7 @@ def handle_exception(err):
         resp = jsonify({'code': 'api_failure', 'message': str(err)})
         resp.status_code = 500
 
-    if current_app.debug:
+    if current_app.config.get('RAISE_ERRORS'):
         raise(err) # enable this to print to console
 
     return resp

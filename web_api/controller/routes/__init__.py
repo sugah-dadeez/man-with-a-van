@@ -1,1 +1,3 @@
-from . import endpoints
+# from . import endpoints
+from . import auth
+from . import ping
