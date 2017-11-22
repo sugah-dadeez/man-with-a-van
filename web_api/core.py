@@ -22,17 +22,13 @@ def create_app(debug=False, raise_errors=False):
     errors.register_error_handlers(app)
 
     configure_app(app)
-    # app.config.from_object(config)
     app.debug = debug
     app.config['RAISE_ERRORS'] = raise_errors
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'secret_key'
 
+    # bind database
     db.init_app(app)
-
-    # Configure logging
-    # if not app.testing:
-    #     logging.basicConfig(level=logging.INFO)
 
     # register blueprints
     app.register_blueprint(routes.ping.bp, url_prefix='/ping')
@@ -43,6 +39,8 @@ def create_app(debug=False, raise_errors=False):
 def configure_app(app):
     assert 'FLASK_CONFIG' in os.environ, 'missing FLASK_CONFIG in environment'
     fp = os.environ.get('FLASK_CONFIG')
+
+    assert os.path.exists(fp), 'bad flask config "fp"'
 
     with open(fp, 'r') as f:
         conf_obj = yaml.load(f)
@@ -56,4 +54,5 @@ def configure_app(app):
 def reset_db():
     app = create_app()
     with app.app_context():
+        db.drop_all()
         db.create_all()

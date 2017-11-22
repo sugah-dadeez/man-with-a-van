@@ -56,7 +56,7 @@ class APIError(Exception):
 
 
     @classmethod
-    def raise_assert(cls,bool,msg):
+    def raise_assert(cls,bool,msg=None):
         if not bool:
             raise cls(msg)
 
