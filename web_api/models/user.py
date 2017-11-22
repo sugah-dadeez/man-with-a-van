@@ -3,7 +3,7 @@ from flask import url_for, current_app
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urljoin
 from web_api.models import db
-from web_api.controller import security, sms
+from web_api.controller import security, sms, errors
 
 class User(db.Model):
     __tablename__ = 'USER'
@@ -11,6 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(30), primary_key=False, unique=True, nullable=False)
     hashed_password = db.Column(db.String(64), nullable=False)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
+    is_driver = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         '''hash via bcrypt and persist to user'''
@@ -43,9 +44,14 @@ class User(db.Model):
 
         sms_client = sms.SMSClient.from_app(current_app)
 
-        sms_client.send(
-            to=self.username,
-            message_text=url,
-        )
+        try:
+            sms_client.send(
+                to=self.username,
+                message_text=url,
+            )
+
+            print(url)
+        except:
+            raise errors.APIError('failed to send sms')
 
         return url

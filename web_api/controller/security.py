@@ -1,20 +1,31 @@
 import jwt
 import datetime
 from itsdangerous import URLSafeSerializer
-from flask import current_app
+from flask import current_app, Blueprint
 import bcrypt
+
+class SecureBlueprint(Blueprint):
+    def __init__(self):
+        pass
+
+def check_header_token():
+    pass
+
+def set_current_user():
+    pass
 
 def make_expiring_jwt(payload, exp=10):
     dt = int(datetime.datetime.now().timestamp())
+    key = current_app.config['SECRET_KEY']
 
     return jwt.encode(
         dict(
-            data,
+            payload,
             iat=dt,
             exp=dt+exp
         ),
         key=key
-    )
+    ).decode('utf-8')
 
 def parse_url_token(token):
     s = get_url_token_serializer()

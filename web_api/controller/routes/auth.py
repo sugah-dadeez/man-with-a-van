@@ -28,6 +28,9 @@ def login():
         exp=3600,
     )
 
+    print(type(token))
+    print(token)
+
     return jsonify({'token': token})
 
 @bp.route('/signup', methods=['POST'])

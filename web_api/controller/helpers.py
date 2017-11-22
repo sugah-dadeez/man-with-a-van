@@ -8,7 +8,5 @@ class JSONEncoder(flask.json.JSONEncoder):
             return float(round(obj,2))
         elif isinstance(obj, (datetime.datetime,datetime.date,datetime.time)):
             return obj.isoformat()
-        elif isinstance(obj, sa.util._collections.result):
-            return list(obj)
 
         return super(JSONEncoder, self).default(obj)
