@@ -1,18 +1,79 @@
 import jwt
 import datetime
-from itsdangerous import URLSafeSerializer
-from flask import current_app, Blueprint
 import bcrypt
+from functools import wraps
+from itsdangerous import URLSafeSerializer
+from flask import current_app, Blueprint, request, g
+from web_api.controller import errors
+from web_api.models import db, User
+
 
 class SecureBlueprint(Blueprint):
-    def __init__(self):
-        pass
+    '''subclass of flask Blueprint that enforces auth on all routes'''
+    def __init__(self, *args, **kwargs):
+        Blueprint.__init__(self,  *args, **kwargs)
+        self.before_request(set_token_user)
 
-def check_header_token():
-    pass
+def decode_token(token):
+    '''decode jwt signed with RS256 algorithm'''
+    app = current_app
+    key = app.config['SECRET_KEY']
 
-def set_current_user():
-    pass
+    # assert client_id, 'missing client id'
+    assert key, 'missing public key'
+
+    try:
+        payload = jwt.decode(
+            jwt=token,
+            key=key,
+            # algorithm='RS256',
+            # audience=client_id
+        )
+
+    except jwt.ExpiredSignature:
+        raise AuthError('token expired')
+
+    except jwt.InvalidAudienceError:
+        raise AuthError('incorrect token audience')
+
+    except jwt.DecodeError:
+        raise AuthError('invalid token signature')
+
+    except Exception as e:
+        raise AuthError('authentication failed')
+
+    return payload
+
+def set_token_user():
+    auth = request.headers.get('Authorization', None)
+    errors.AuthError.raise_assert(auth is not None, 'auth header missing')
+
+    parts = auth.strip().split()
+    errors.AuthError.raise_assert(parts[0].lower()=='bearer', 'bad authorization header')
+    errors.AuthError.raise_assert(len(parts) == 2, 'malformed authorization header')
+
+    token = parts[1]
+    token_info = decode_token(token)
+
+    username = token_info['username']
+    u = db.session.query(User).filter_by(username=username).first()
+    errors.AuthError.raise_assert(u is not None, 'user not found')
+    errors.AuthError.raise_assert(u.is_verified, 'user not verified')
+
+    g.current_token = token
+    g.current_token_info = token_info
+    g.current_user = u
+
+
+
+def requires_auth(f):
+    '''decorator to enforce jwt auth on route and set g.user'''
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        set_token_user()
+        return f(*args, **kwargs)
+    return decorated
+
 
 def make_expiring_jwt(payload, exp=10):
     dt = int(datetime.datetime.now().timestamp())

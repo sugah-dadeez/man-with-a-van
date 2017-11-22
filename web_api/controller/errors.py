@@ -132,7 +132,6 @@ class EmailVerificationError(APIError):
     def __init__(self, message=None, status_code=None, payload=None):
         APIError.__init__(self, message, status_code, payload)
 
-
 class PermissionsError(APIError):
     '''error class for bad permissions'''
     status_code = 401
