@@ -57,15 +57,20 @@ def signup():
     if not u is None:
         raise errors.AuthError('user already exists')
 
-    u = User(username=body['username'], is_verified=False)
+    u = User(
+        username=body['username'],
+        is_verified=body.get('is_verified', False),
+        is_driver=body.get('is_driver', False),
+    )
     u.set_password(body['password'])
 
     db.session.add(u)
     db.session.commit()
 
-    url = u.send_verification()
+    if not u.is_verified:
+        url = u.send_verification()
 
-    return jsonify({'code': 'success', 'message': 'please verify phone'})
+    return jsonify({'code': 'success'})
 
 @bp.route('/send-verification/<username>', methods=['POST'])
 def provision(username):

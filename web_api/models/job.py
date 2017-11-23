@@ -28,7 +28,7 @@ class Job(db.Model):
                     'id': b.id,
                     'driver': b.driver.to_dict(),
                     'amount': b.amount,
-                    'bid_date': b.posted_date,
+                    'bid_date': b.bid_date,
                     'is_active': b.is_active,
                 }
                 for b in self.bids
