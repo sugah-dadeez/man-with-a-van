@@ -1,6 +1,5 @@
 import jwt
 import datetime
-import bcrypt
 from functools import wraps
 from itsdangerous import URLSafeSerializer
 from flask import current_app, Blueprint, request, g
@@ -15,7 +14,6 @@ class SecureBlueprint(Blueprint):
         self.before_request(set_token_user)
 
 def decode_token(token):
-    '''decode jwt signed with RS256 algorithm'''
     app = current_app
     key = app.config['SECRET_KEY']
 
@@ -26,21 +24,19 @@ def decode_token(token):
         payload = jwt.decode(
             jwt=token,
             key=key,
-            # algorithm='RS256',
-            # audience=client_id
         )
 
     except jwt.ExpiredSignature:
-        raise AuthError('token expired')
+        raise errors.AuthError('token expired')
 
     except jwt.InvalidAudienceError:
-        raise AuthError('incorrect token audience')
+        raise errors.AuthError('incorrect token audience')
 
     except jwt.DecodeError:
-        raise AuthError('invalid token signature')
+        raise errors.AuthError('invalid token signature')
 
     except Exception as e:
-        raise AuthError('authentication failed')
+        raise errors.AuthError('authentication failed')
 
     return payload
 
@@ -63,8 +59,6 @@ def set_token_user():
     g.current_token = token
     g.current_token_info = token_info
     g.current_user = u
-
-
 
 def requires_auth(f):
     '''decorator to enforce jwt auth on route and set g.user'''
@@ -99,9 +93,3 @@ def make_url_token(data):
 def get_url_token_serializer():
     key = current_app.config['SECRET_KEY']
     return URLSafeSerializer(key)
-
-def hash_password(password):
-    return bcrypt.hashpw(password, bcrypt.gensalt())
-
-def check_password_hash(hashed_password, password):
-    return bcrypt.checkpw(password, hashed_password)

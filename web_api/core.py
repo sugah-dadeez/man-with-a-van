@@ -33,6 +33,7 @@ def create_app(debug=False, raise_errors=False):
     # register blueprints
     app.register_blueprint(routes.ping.bp, url_prefix='/ping')
     app.register_blueprint(routes.auth.bp, url_prefix='/auth')
+    app.register_blueprint(routes.job.bp, url_prefix='/job')
 
     return app
 

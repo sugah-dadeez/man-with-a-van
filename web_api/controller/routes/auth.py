@@ -77,7 +77,7 @@ def provision(username):
 
     return jsonify({'message': 'success'})
 
-@bp.route('/verify/<token>', methods=['GET'])
+@bp.route('/verify/<token>', methods=['GET', 'POST'])
 def verify(token):
     try:
         payload = security.parse_url_token(token)

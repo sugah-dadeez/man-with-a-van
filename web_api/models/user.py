@@ -3,7 +3,7 @@ from flask import url_for, current_app
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urljoin
 from web_api.models import db
-from web_api.controller import security, sms, errors
+from web_api.controller import security, errors, sms
 
 class User(db.Model):
     __tablename__ = 'USER'
@@ -12,6 +12,35 @@ class User(db.Model):
     hashed_password = db.Column(db.String(64), nullable=False)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_driver = db.Column(db.Boolean, nullable=False, default=False)
+
+    # jobs = db.relationship('Job')
+    # bids = db.relationship('JobBid')
+
+    def to_dict(self, bids=False, jobs=False):
+        output = {
+            'id': self.id,
+            'username': self.username,
+            'is_verified': self.is_verified,
+            'is_driver': self.is_driver,
+        }
+
+        if bids:
+            output['bids'] = [
+                {
+                    'id': b.id,
+                    'job_id': b.job_id,
+                    'amount': b.amount,
+                    'bid_date': b.bid_date,
+                    'is_active': b.is_active,
+                }
+                for b in self.bids
+                if b.job.is_active
+            ]
+
+        if jobs:
+            output['jobs'] = [j.to_dict() for j in self.jobs]
+
+        return output
 
     def set_password(self, password):
         '''hash via bcrypt and persist to user'''
