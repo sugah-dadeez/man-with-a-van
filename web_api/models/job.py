@@ -11,6 +11,7 @@ class Job(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('USER.id'), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     list_date = db.Column(db.DateTime, nullable=False)
+    last_login_date = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship('User')
     bids = db.relationship('JobBid')
@@ -41,9 +42,9 @@ class Job(db.Model):
 class JobBid(db.Model):
     __tablename__ = 'JOB_BID'
 
-    # id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    job_id = db.Column(db.Integer, db.ForeignKey('JOB.id'), primary_key=True)
-    driver_id = db.Column(db.Integer, db.ForeignKey('USER.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    job_id = db.Column(db.Integer, db.ForeignKey('JOB.id'))
+    driver_id = db.Column(db.Integer, db.ForeignKey('USER.id'))
     amount = db.Column(db.Numeric(), nullable=False)
     bid_date = db.Column(db.DateTime(), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)

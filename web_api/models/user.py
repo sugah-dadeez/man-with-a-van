@@ -13,8 +13,8 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_driver = db.Column(db.Boolean, nullable=False, default=False)
 
-    # jobs = db.relationship('Job')
-    # bids = db.relationship('JobBid')
+    jobs = db.relationship('Job')
+    bids = db.relationship('JobBid')
 
     def to_dict(self, bids=False, jobs=False):
         output = {

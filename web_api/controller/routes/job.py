@@ -42,12 +42,33 @@ bp.add_url_rule('/<int:id>', view_func=job_view, methods=['GET','PUT','PATCH','D
 
 class JobBidView(MethodView):
     def get(self, job_id):
-        jobbid = db.session.query(JobBid).filter_by(
+
+        query = db.session.query(JobBid).filter_by(
             job_id=job_id,
             driver_id=g.current_user.id,
-        ).first()
+        )
+
+        query = query.order_by(JobBid.bid_date.desc())
+
+        if 'history' in request.args:
+            history = request.args.get('history').lower().strip()
+
+            errors.QueryError.raise_assert(
+                history in ('true','false'),
+                'unknown history argument'
+            )
+
+            if history == 'true':
+                jobbids = query.all()
+                return jsonify([j.to_dict(driver=True, job=True) for j in jobbids])
+
+
+        query = query.filter_by(is_active=True)
+        jobbid = query.first()
+
         errors.QueryError.raise_assert(jobbid is not None, 'job bid not found')
         return jsonify(jobbid.to_dict(driver=True, job=True))
+
 
     def post(self, job_id):
         body = request.json
@@ -64,20 +85,24 @@ class JobBidView(MethodView):
             driver_id=g.current_user.id,
         ).all()
 
-        errors.QueryError.raise_assert(len(old_bids)==0, 'cannot submit multiple bids')
+        if len(old_bids) > 0:
+            for bid in old_bids:
+                bid.is_active = False
+                db.session.add(bid)
 
-        jobbid = JobBid(
+        bid = JobBid(
             driver_id = g.current_user.id,
             amount = body['amount'],
             bid_date = datetime.datetime.now(),
             is_active = True
         )
 
-        job.bids.append(jobbid)
+        job.bids.append(bid)
         db.session.add(job)
+
         db.session.commit()
 
-        return jsonify(jobbid.to_dict(driver=True, job=True))
+        return jsonify(bid.to_dict(driver=True, job=True))
 
     def delete(self, job_id):
         jobbid = db.session.query(JobBid).filter_by(
