@@ -1,11 +1,13 @@
 import jwt
 import datetime
+import logging
 from functools import wraps
 from itsdangerous import URLSafeSerializer
 from flask import current_app, Blueprint, request, g
 from web_api.controller import errors
 from web_api.models import db, User
 
+logger = logging.getLogger(__name__)
 
 class SecureBlueprint(Blueprint):
     '''subclass of flask Blueprint that enforces auth on all routes'''
@@ -41,6 +43,7 @@ def decode_token(token):
     return payload
 
 def set_token_user():
+    logger.debug('setting token user')
     auth = request.headers.get('Authorization', None)
     errors.AuthError.raise_assert(auth is not None, 'auth header missing')
 

@@ -11,10 +11,12 @@ class Job(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('USER.id'), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     list_date = db.Column(db.DateTime, nullable=False)
-    last_login_date = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship('User')
     bids = db.relationship('JobBid')
+
+    def winning_bid(self):
+        pass
 
     def to_dict(self, user=False, bids=False):
         output = {

@@ -12,6 +12,7 @@ class User(db.Model):
     hashed_password = db.Column(db.String(64), nullable=False)
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_driver = db.Column(db.Boolean, nullable=False, default=False)
+    last_login_date = db.Column(db.DateTime, nullable=True)
 
     jobs = db.relationship('Job')
     bids = db.relationship('JobBid')

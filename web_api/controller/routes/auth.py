@@ -4,13 +4,14 @@ from urllib.parse import urljoin
 from flask import jsonify, Blueprint, url_for, current_app, request, g
 from web_api.controller import security, errors, sms
 from web_api.models import db, User
+from flask import logging
 
 bp = Blueprint('auth', __name__)
+logger = logging.getLogger(__name__)
 
 @bp.route('/check_token')
 @security.requires_auth
 def check_token():
-    print(g.current_user.username)
     return jsonify({
         'token': g.current_token,
         'token_info': g.current_token_info,
@@ -20,6 +21,8 @@ def check_token():
 
 @bp.route('/login', methods=['POST'])
 def login():
+    logger.info('logging in')
+
     body = request.json
 
     if 'username' not in body or 'password' not in body:
@@ -31,6 +34,10 @@ def login():
     errors.AuthError.raise_assert(u.check_password(body['password'])) # check password
     errors.AuthError.raise_assert(u.is_verified, 'user not verified') # check verified
 
+    u.last_login_date = datetime.datetime.now()
+    db.session.add(u)
+    db.session.commit()
+
     # TODO: check if jwt issued time is valid
     # can use this to invalidate old tokens that haven't expired yet
 
@@ -39,9 +46,6 @@ def login():
         payload={'username': u.username},
         exp=3600,
     )
-
-    print(type(token))
-    print(token)
 
     return jsonify({'token': token})
 

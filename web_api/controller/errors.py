@@ -1,6 +1,9 @@
 from flask import jsonify, current_app, g
 from werkzeug.exceptions import HTTPException, default_exceptions
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 def register_error_handlers(app):
     '''register all error handlers for this flask app'''
@@ -32,7 +35,9 @@ def handle_exception(err):
         resp.status_code = 500
 
     if current_app.config.get('RAISE_ERRORS'):
-        raise(err) # enable this to print to console
+        logger.exception(err)
+    else:
+        logger.info(str(err))
 
     return resp
 
@@ -44,7 +49,8 @@ class APIError(Exception):
     error_code = 'api_failure'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        Exception.__init__(self)
+        super().__init__(self)
+        # super(Exception, self).__init__(message)
 
         if message is not None:
             self.message = message
@@ -53,7 +59,6 @@ class APIError(Exception):
             self.status_code = status_code
 
         self.payload = payload
-
 
     @classmethod
     def raise_assert(cls,bool,msg=None):
@@ -77,7 +82,11 @@ class APIError(Exception):
         return resp
 
     def __str__(self):
-        return self.message
+        return '{error_class}, {msg}'.format(
+            error_class=self.__class__.__name__,
+            # code=self.error_code,
+            msg=self.message,
+        )
 
 class QueryError(APIError):
     '''custom error class for auth errors'''
@@ -86,7 +95,7 @@ class QueryError(APIError):
     error_code = 'bad_query'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
 
 class AuthError(APIError):
@@ -96,7 +105,7 @@ class AuthError(APIError):
     error_code = 'access_denied'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
 
 class WerkzeugError(APIError):
@@ -105,7 +114,7 @@ class WerkzeugError(APIError):
     error_code = 'http_exception'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
     @classmethod
     def from_httperror(cls, err):
@@ -120,7 +129,7 @@ class LoginError(APIError):
     error_code = 'login_failed'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
 
 class EmailVerificationError(APIError):
@@ -130,7 +139,7 @@ class EmailVerificationError(APIError):
     error_code = 'email_not_verified'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
 class PermissionsError(APIError):
     '''error class for bad permissions'''
@@ -139,7 +148,7 @@ class PermissionsError(APIError):
     error_code = 'insufficient_permissions'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)
 
 
 class ValidationError(APIError):
@@ -149,4 +158,4 @@ class ValidationError(APIError):
     error_code = 'failed_data_validation'
 
     def __init__(self, message=None, status_code=None, payload=None):
-        APIError.__init__(self, message, status_code, payload)
+        super().__init__(message, status_code, payload)

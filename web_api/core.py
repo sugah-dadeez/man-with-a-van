@@ -6,6 +6,8 @@ from flask_cors import CORS
 from .controller import routes, helpers, errors
 from .models import db
 
+logger = logging.getLogger('api.core')
+
 def create_app(debug=False, raise_errors=False):
     """
     :param config:
@@ -21,11 +23,16 @@ def create_app(debug=False, raise_errors=False):
     # register error handler
     errors.register_error_handlers(app)
 
-    configure_app(app)
+    # set debug mode
     app.debug = debug
+
+    # configure logging
+    configure_logging(app)
+
+    # configure app
     app.config['RAISE_ERRORS'] = raise_errors
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = 'secret_key'
+    configure_app(app)
 
     # bind database
     db.init_app(app)
@@ -46,11 +53,36 @@ def configure_app(app):
     with open(fp, 'r') as f:
         conf_obj = yaml.load(f)
 
+    if 'secret_key' in conf_obj:
+        app.config['SECRET_KEY'] = conf_obj['secret_key']
+    else:
+        logger.critical('no flask secret key set!')
+        app.config['SECRET_KEY'] = 'secret_key'
+
     app.config['EXTERNAL_URL'] = conf_obj['external_url']
     app.config['SQLALCHEMY_DATABASE_URI'] = conf_obj['db']['url']
     app.config['TWILIO_ACCOUNT_SID'] = conf_obj['twilio']['account_sid']
     app.config['TWILIO_AUTH_TOKEN'] = conf_obj['twilio']['auth_token']
     app.config['TWILIO_FROM_NUMBER'] = conf_obj['twilio']['from_number']
+
+def configure_logging(app):
+    # logging.basicConfig(level=logging.INFO)
+
+    root = logging.getLogger()
+    h = logging.StreamHandler()
+    fmt = logging.Formatter(
+        fmt='%(asctime)s %(levelname)s (%(name)s) %(message)s',
+        datefmt='%Y-%m-%dT%H:%M:%S'
+    )
+    h.setFormatter(fmt)
+
+    root.addHandler(h)
+
+    if app.debug:
+        root.setLevel(logging.DEBUG)
+    else:
+        root.setLevel(logging.INFO)
+
 
 def reset_db():
     app = create_app()

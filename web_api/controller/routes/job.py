@@ -9,6 +9,7 @@ bp = security.SecureBlueprint('job', __name__)
 class JobView(MethodView):
     def get(self, id=None):
         job = db.session.query(Job).filter_by(id=id).first()
+        errors.QueryError.raise_assert(job is not None, 'job not found')
         return jsonify(job.to_dict(bids=True))
 
     def post(self):
