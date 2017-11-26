@@ -38,9 +38,6 @@ def login():
     db.session.add(u)
     db.session.commit()
 
-    # TODO: check if jwt issued time is valid
-    # can use this to invalidate old tokens that haven't expired yet
-
     # return session jwt
     token = security.make_expiring_jwt(
         payload={'username': u.username},
@@ -65,6 +62,7 @@ def signup():
         username=body['username'],
         is_verified=body.get('is_verified', False),
         is_driver=body.get('is_driver', False),
+        minimum_iat=datetime.datetime.now().timestamp(),
     )
     u.set_password(body['password'])
 

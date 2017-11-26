@@ -19,6 +19,9 @@ class JobView(MethodView):
             user_id=g.current_user.id,
             is_active=True,
             list_date=datetime.datetime.now(),
+            square_feet=body.get('square_feet'),
+            pickup_address=body.get('pickup_address'),
+            dropoff_address=body.get('dropoff_address'),
         )
 
         db.session.add(job)
@@ -56,7 +59,7 @@ class JobBidView(MethodView):
 
             errors.QueryError.raise_assert(
                 history in ('true','false'),
-                'unknown history argument'
+                'bad history argument'
             )
 
             if history == 'true':
@@ -67,7 +70,7 @@ class JobBidView(MethodView):
         query = query.filter_by(is_active=True)
         jobbid = query.first()
 
-        errors.QueryError.raise_assert(jobbid is not None, 'job bid not found')
+        errors.QueryError.raise_assert(jobbid is not None, 'no active bid on this job')
         return jsonify(jobbid.to_dict(driver=True, job=True))
 
 

@@ -6,7 +6,7 @@ from flask_cors import CORS
 from .controller import routes, helpers, errors
 from .models import db
 
-logger = logging.getLogger('api.core')
+logger = logging.getLogger(__name__)
 
 def create_app(debug=False, raise_errors=False):
     """
@@ -27,12 +27,12 @@ def create_app(debug=False, raise_errors=False):
     app.debug = debug
 
     # configure logging
-    configure_logging(app)
+    configure_logging(debug=debug)
 
     # configure app
     app.config['RAISE_ERRORS'] = raise_errors
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    configure_app(app)
+    configure_app(app=app)
 
     # bind database
     db.init_app(app)
@@ -49,6 +49,7 @@ def configure_app(app):
     fp = os.environ.get('FLASK_CONFIG')
 
     assert os.path.exists(fp), 'bad flask config "fp"'
+    logger.debug('reading config "{fp}"'.format(fp=fp))
 
     with open(fp, 'r') as f:
         conf_obj = yaml.load(f)
@@ -65,7 +66,7 @@ def configure_app(app):
     app.config['TWILIO_AUTH_TOKEN'] = conf_obj['twilio']['auth_token']
     app.config['TWILIO_FROM_NUMBER'] = conf_obj['twilio']['from_number']
 
-def configure_logging(app):
+def configure_logging(debug=False):
     # logging.basicConfig(level=logging.INFO)
 
     root = logging.getLogger()
@@ -78,7 +79,7 @@ def configure_logging(app):
 
     root.addHandler(h)
 
-    if app.debug:
+    if debug:
         root.setLevel(logging.DEBUG)
     else:
         root.setLevel(logging.INFO)

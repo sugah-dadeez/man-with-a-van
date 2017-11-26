@@ -11,6 +11,9 @@ class Job(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('USER.id'), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     list_date = db.Column(db.DateTime, nullable=False)
+    square_feet = db.Column(db.Numeric, nullable=False)
+    pickup_address = db.Column(db.String())
+    dropoff_address = db.Column(db.String())
 
     user = db.relationship('User')
     bids = db.relationship('JobBid')
@@ -23,6 +26,10 @@ class Job(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'is_active': self.is_active,
+            'list_date': self.list_date,
+            'square_feet': self.square_feet,
+            'pickup_address': self.pickup_address,
+            'dropoff_address': self.dropoff_address,
         }
 
         if bids:

@@ -47,6 +47,7 @@ def set_token_user():
     auth = request.headers.get('Authorization', None)
     errors.AuthError.raise_assert(auth is not None, 'auth header missing')
 
+    # split token string in Authorization header
     parts = auth.strip().split()
     errors.AuthError.raise_assert(parts[0].lower()=='bearer', 'bad authorization header')
     errors.AuthError.raise_assert(len(parts) == 2, 'malformed authorization header')
@@ -54,11 +55,17 @@ def set_token_user():
     token = parts[1]
     token_info = decode_token(token)
 
+    # check user in db
     username = token_info['username']
     u = db.session.query(User).filter_by(username=username).first()
     errors.AuthError.raise_assert(u is not None, 'user not found')
     errors.AuthError.raise_assert(u.is_verified, 'user not verified')
 
+    # check if jwt issued time is valid
+    # can use this to invalidate old tokens that haven't expired yet
+    errors.AuthError.raise_assert(u.minimum_iat <= token_info['iat'], 'old token')
+
+    # assign to session global store
     g.current_token = token
     g.current_token_info = token_info
     g.current_user = u

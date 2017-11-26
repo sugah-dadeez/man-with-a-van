@@ -13,6 +13,7 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, nullable=False, default=False)
     is_driver = db.Column(db.Boolean, nullable=False, default=False)
     last_login_date = db.Column(db.DateTime, nullable=True)
+    minimum_iat = db.Column(db.Numeric, nullable=False)
 
     jobs = db.relationship('Job')
     bids = db.relationship('JobBid')
