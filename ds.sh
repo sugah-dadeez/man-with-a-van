@@ -3,12 +3,12 @@
 case "$1" in
   build)
     echo "building"
+    docker build -t cs5357 .
     if [[ ! -z $(docker images -f "dangling=true" -q) ]]
     then
       echo "Deleting dangling images"
       docker rmi $(docker images -f "dangling=true" -q)
     fi
-    docker build -t cs5357 .
     ;;
 
   kill)
@@ -23,15 +23,15 @@ case "$1" in
 
   start)
     echo "starting"
-    ./ds.sh build
     ./ds.sh kill
+    ./ds.sh build
     docker run -d -p 8080:8080 cs5357
     ;;
 
   interact)
     echo "start interact"
-    ./ds.sh build
     ./ds.sh kill
+    ./ds.sh build
     docker run --rm -it cs5357 bash
     ;;
 
