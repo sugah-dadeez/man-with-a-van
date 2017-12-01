@@ -5,5 +5,5 @@ __pycache__/
 config.jsonenv/
 env/
 .ipynb_checkpoints/
-instance
+instance/
 *.db
