@@ -1,6 +1,6 @@
 from flask import jsonify, g, request
 from flask.views import MethodView
-from web_api.controller import security, errors
+from web_api.controller import security, errors, helpers
 from web_api.models import db, Job, JobBid
 import datetime
 
@@ -17,7 +17,7 @@ class JobView(MethodView):
 
         job = Job(
             user_id=g.current_user.id,
-            is_active=True,
+            is_active=body.get('is_active', False),
             list_date=datetime.datetime.now(),
             square_feet=body.get('square_feet'),
             pickup_address=body.get('pickup_address'),
@@ -33,7 +33,18 @@ class JobView(MethodView):
         pass
 
     def patch(self, id=None):
-        pass
+        body = request.json
+        job = db.session.query(Job).filter_by(id=id).first()
+        errors.QueryError.raise_assert(job is not None, 'job not found')
+
+        if 'is_active' in body:
+            errors.ValidationError.raise_assert(body['is_active'] in (True, False), 'is_active must be boolean')
+            job.is_active = body.get('is_active')
+
+        db.session.add(job)
+        db.session.commit()
+
+        return jsonify(job.to_dict(bids=True))
 
     def delete(self, id=None):
         pass
@@ -47,29 +58,31 @@ bp.add_url_rule('/<int:id>', view_func=job_view, methods=['GET','PUT','PATCH','D
 class JobBidView(MethodView):
     def get(self, job_id):
 
-        query = db.session.query(JobBid).filter_by(
-            job_id=job_id,
-            driver_id=g.current_user.id,
-        )
+        job = db.session.query(Job).filter_by(id=job_id).first()
+        errors.QueryError.raise_assert(job is not None, 'job not found')
+
+        query = db.session.query(JobBid).filter_by(job_id=job_id)
+
+        # restrict others users to only see their bids
+        if not job.user_id == g.current_user.id:
+            query = query.filter_by(driver_id=g.current_user.id)
 
         query = query.order_by(JobBid.bid_date.desc())
 
         if 'history' in request.args:
-            history = request.args.get('history').lower().strip()
+            history = helpers.make_boolean(request.args.get('history'))
 
-            errors.QueryError.raise_assert(
-                history in ('true','false'),
-                'bad history argument'
-            )
-
-            if history == 'true':
+            if history:
                 jobbids = query.all()
                 return jsonify([j.to_dict(driver=True, job=True) for j in jobbids])
 
-
         query = query.filter_by(is_active=True)
-        jobbid = query.first()
 
+        if job.user_id == g.current_user.id:
+            jobbids = query.all()
+            return jsonify([j.to_dict(driver=True, job=True) for j in jobbids])
+
+        jobbid = query.first()
         errors.QueryError.raise_assert(jobbid is not None, 'no active bid on this job')
         return jsonify(jobbid.to_dict(driver=True, job=True))
 
