@@ -43,6 +43,9 @@ def create_app(debug=False, raise_errors=False):
     app.register_blueprint(routes.job.bp, url_prefix='/job')
     app.register_blueprint(routes.user.bp, url_prefix='/user')
 
+    with app.app_context():
+        db.create_all()
+
     return app
 
 def configure_app(app):
