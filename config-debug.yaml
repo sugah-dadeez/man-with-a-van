@@ -6,4 +6,4 @@ twilio:
   auth_token: test
   from_number: test
 db:
-  url: sqlite:///../local.db
+  url: sqlite:///../test.db

@@ -3,6 +3,7 @@ import os
 import unittest
 from web_api import create_app
 import json
+from flask import jsonify
 
 os.environ['FLASK_CONFIG'] = os.path.abspath('config-debug.yaml')
 app = create_app(debug=False, raise_errors=False)
@@ -18,8 +19,15 @@ class BasicTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_main_page(self):
+    def test_ping(self):
         response = self.app.get('/ping', follow_redirects=True)
+        print(json.loads(response.data))
+        self.assertEqual(response.status_code, 200)
+
+    def test_auth(self):
+        auth_payload = {'username':'bob','password':'default','is_verified':True}
+        auth_payload = json.dumps(auth_payload)
+        response = self.app.post('/auth/signup', data = auth_payload, content_type='application/json', follow_redirects=True)
         print(json.loads(response.data))
         self.assertEqual(response.status_code, 200)
 

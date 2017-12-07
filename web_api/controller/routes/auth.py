@@ -49,6 +49,7 @@ def login():
 @bp.route('/signup', methods=['POST'])
 def signup():
     body = request.json
+    print(body)
 
     if 'username' not in body or 'password' not in body:
         raise errors.APIError('username and password required')
@@ -56,6 +57,7 @@ def signup():
     u = db.session.query(User).filter_by(username=body['username']).first()
 
     if not u is None:
+        return jsonify({'code': 'OTHER ERROR'})
         raise errors.AuthError('user already exists')
 
     u = User(
@@ -70,6 +72,7 @@ def signup():
     db.session.commit()
 
     if not u.is_verified:
+        return jsonify({'code': 'SENDING VER'})
         url = u.send_verification()
 
     return jsonify({'code': 'success'})
