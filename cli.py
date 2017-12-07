@@ -1,4 +1,5 @@
 import web_api
+import test_basic
 import argparse
 import os
 
@@ -10,6 +11,7 @@ def cli():
     p.add_argument('-p', help='port', dest='port', default=8080)
     p.add_argument('--raise', help='raise errors', dest='raise_errors', action='store_true')
     p.add_argument('--reset', help='reset db', dest='reset', action='store_true')
+    p.add_argument('--test', help='run tests', dest='test', action='store_true')
 
     args = p.parse_args()
 
@@ -19,6 +21,9 @@ def cli():
 
     if args.reset:
         web_api.reset_db()
+    elif args.test:
+        app = web_api.create_app(debug=args.debug, raise_errors=args.raise_errors)
+        test_basic.run()
     else:
         app = web_api.create_app(debug=args.debug, raise_errors=args.raise_errors)
         app.run(port=int(args.port))
