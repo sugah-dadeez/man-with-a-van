@@ -23,6 +23,11 @@ class BasicTests(unittest.TestCase):
         print(json.loads(response.data))
         self.assertEqual(response.status_code, 200)
 
+    # def test_main_page(self):
+    #     response = self.app.get('/ping', follow_redirects=True)
+    #     print(json.loads(response.data))
+    #     self.assertEqual(response.status_code, 200)
+
 def run():
     unittest.main()
 
