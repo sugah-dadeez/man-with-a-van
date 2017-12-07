@@ -48,31 +48,32 @@ def login():
 
 @bp.route('/signup', methods=['POST'])
 def signup():
-    body = request.get_json()
+    body = request.json
+    print(body)
 
     if 'username' not in body or 'password' not in body:
         raise errors.APIError('username and password required')
 
-    # u = db.session.query(User).filter_by(username=body['username']).first()
-    #
-    # if not u is None:
-    #     return jsonify({'code': 'OTHER ERROR'})
-    #     raise errors.AuthError('user already exists')
-    #
-    # u = User(
-    #     username=body['username'],
-    #     is_verified=body.get('is_verified', False),
-    #     is_driver=body.get('is_driver', False),
-    #     minimum_iat=datetime.datetime.now().timestamp(),
-    # )
-    # u.set_password(body['password'])
-    #
-    # db.session.add(u)
-    # db.session.commit()
-    #
-    # if not u.is_verified:
-    #     return jsonify({'code': 'SENDING VER'})
-    #     url = u.send_verification()
+    u = db.session.query(User).filter_by(username=body['username']).first()
+
+    if not u is None:
+        return jsonify({'code': 'OTHER ERROR'})
+        raise errors.AuthError('user already exists')
+
+    u = User(
+        username=body['username'],
+        is_verified=body.get('is_verified', False),
+        is_driver=body.get('is_driver', False),
+        minimum_iat=datetime.datetime.now().timestamp(),
+    )
+    u.set_password(body['password'])
+
+    db.session.add(u)
+    db.session.commit()
+
+    if not u.is_verified:
+        return jsonify({'code': 'SENDING VER'})
+        url = u.send_verification()
 
     return jsonify({'code': 'success'})
 

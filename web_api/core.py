@@ -48,7 +48,7 @@ def create_app(debug=False, raise_errors=False):
     with app.app_context():
         db.create_all()
 
-    return app, auto
+    return app
 
 def configure_app(app):
     assert 'FLASK_CONFIG' in os.environ, 'missing FLASK_CONFIG in environment'
