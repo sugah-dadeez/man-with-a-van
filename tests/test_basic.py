@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from .core import app
+# from .core import app
 
 TEST_DB = 'test.db'
 
