@@ -37,7 +37,14 @@ class JobView(MethodView):
         job = db.session.query(Job).filter_by(id=id).first()
         errors.QueryError.raise_assert(job is not None, 'job not found')
 
-        if 'is_active' in body:
+        if 'winning_bid' in body:
+            job_bid_id = body['winning_bid']
+            job_bid = db.session.query(JobBid).filter_by(id=job_bid_id).first()
+            print(job_bid_id, job_bid)
+            errors.QueryError.raise_assert(job_bid is not None, 'job bid {} not found'.format(job_bid_id))
+            job.set_winning_bid(job_bid_id)
+
+        elif 'is_active' in body:
             errors.ValidationError.raise_assert(body['is_active'] in (True, False), 'is_active must be boolean')
             job.is_active = body.get('is_active')
 

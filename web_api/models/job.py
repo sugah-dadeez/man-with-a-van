@@ -2,7 +2,7 @@ from flask import url_for, current_app
 from flask_sqlalchemy import SQLAlchemy
 from urllib.parse import urljoin
 from web_api.models import db
-from web_api.controller import security, errors
+from web_api.controller import security, errors, sms
 
 class Job(db.Model):
     __tablename__ = 'JOB'
@@ -14,12 +14,53 @@ class Job(db.Model):
     square_feet = db.Column(db.Numeric, nullable=False)
     pickup_address = db.Column(db.String())
     dropoff_address = db.Column(db.String())
+    winning_bid = db.Column(db.Integer, nullable=True)
 
-    user = db.relationship('User')
+    user = db.relationship('User', uselist=False)
     bids = db.relationship('JobBid')
 
-    def winning_bid(self):
-        pass
+    def set_winning_bid(self, job_bid_id):
+        # set is_active = false
+        self.is_active = False
+        self.winning_bid = job_bid_id
+
+        sms_client = sms.SMSClient.from_app(current_app)
+
+        winning_bid = None
+
+        try:
+            # send text to all drivers
+            for bid in self.bids:
+                if bid.id == job_bid_id:
+                    msg = 'You won job {job_id}!\n\nContact user at {user_phone}\n\n-Haul Guys'.format(
+                        job_id=self.id,
+                        user_phone=self.user.username,
+                    )
+
+                    winning_bid = bid
+
+                else:
+                    msg = 'Sorry, you lost job {job_id}.\n\nBetter luck next time\n\n-Haul Guys'.format(
+                        job_id=self.id,
+                    )
+
+                sms_client.send(
+                    to=bid.driver.username,
+                    message_text=msg,
+                )
+
+            # text users
+            msg = 'Your drivers contact is {driver_phone}\n\n-Haul Guys'.format(
+                driver_phone=winning_bid.driver.username
+            )
+
+            sms_client.send(
+                to=self.user.username,
+                message_text=msg,
+            )
+
+        except Exception as e:
+            raise errors.APIError('failed to send sms')
 
     def to_dict(self, user=False, bids=False):
         output = {
