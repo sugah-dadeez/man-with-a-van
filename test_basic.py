@@ -3,6 +3,7 @@ import os
 import unittest
 from web_api import create_app
 import json
+from flask import jsonify
 
 os.environ['FLASK_CONFIG'] = os.path.abspath('config-debug.yaml')
 app = create_app(debug=False, raise_errors=False)
