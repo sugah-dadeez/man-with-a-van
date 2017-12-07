@@ -48,7 +48,7 @@ def login():
 
 @bp.route('/signup', methods=['POST'])
 def signup():
-    body = request.json
+    body = request.get_json()
 
     if 'username' not in body or 'password' not in body:
         raise errors.APIError('username and password required')
