@@ -1,4 +1,3 @@
-#project/test_basic.py
 
 # import os
 # import unittest
@@ -37,15 +36,14 @@
 import os
 import unittest
 class TestStringMethods(unittest.TestCase):
-
-   def test_upper(self):
+    def test_upper(self):
         self.assertEqual(‘foo’.upper(), ‘FOO’)
 
-   def test_isupper(self):
+    def test_isupper(self):
         self.assertTrue(‘FOO’.isupper())
         self.assertFalse(‘Foo’.isupper())
 
-   def test_split(self):
+    def test_split(self):
         s = ‘hello world’
         self.assertEqual(s.split(), [‘hello’, ‘world’])
         # check that s.split fails when the separator is not a string
