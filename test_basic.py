@@ -1,10 +1,9 @@
 #project/test_basic.py
 
-
 import os
 import unittest
 
-# from .core import app
+from .core import app
 
 TEST_DB = 'test.db'
 
@@ -16,13 +15,13 @@ class BasicTests(unittest.TestCase):
 
    # executed prior to each test
    def setUp(self):
-       pass
+    #    pass
     #    app.config['TESTING'] = True
     #    app.config['WTF_CSRF_ENABLED'] = False
     #    app.config['DEBUG'] = False
     #    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
     #        os.path.join(app.config['BASEDIR'], TEST_DB)
-    #    self.app = app.test_client()
+       self.app = app.test_client()
     #    db.drop_all()
     #    db.create_all()
        #
@@ -40,7 +39,7 @@ class BasicTests(unittest.TestCase):
 ###############
 
    def test_main_page(self):
-       echo "Hello World"
+       response = self.app.get('/ping', follow_redirects=True)
        self.assertEqual(response.status_code, 200)
 
 
