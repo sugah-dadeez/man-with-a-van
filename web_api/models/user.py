@@ -40,7 +40,7 @@ class User(db.Model):
             ]
 
         if jobs:
-            output['jobs'] = [j.to_dict() for j in self.jobs]
+            output['jobs'] = [j.to_dict(bids=True) for j in self.jobs]
 
         return output
 
