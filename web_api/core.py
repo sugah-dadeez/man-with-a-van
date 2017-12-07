@@ -2,7 +2,7 @@ import logging
 import os
 import yaml
 from flask import Flask
-from flask.ext.autodoc import Autodoc
+# from flask.ext.autodoc import Autodoc
 from flask_cors import CORS
 from .controller import routes, helpers, errors
 from .models import db
@@ -17,7 +17,7 @@ def create_app(debug=False, raise_errors=False):
     """
 
     app = Flask(__name__)
-    auto = Autodoc(app)
+    # auto = Autodoc(app)
 
     # register default encoder
     app.json_encoder = helpers.JSONEncoder
