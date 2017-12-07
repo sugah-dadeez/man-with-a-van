@@ -7,4 +7,4 @@ install: pip install -r requirements.txt
 #   - psql -c ‘create database wemove_primary;’ -U postgres
 
 script:
-  - python3 tests_basic.py
+  - python tests_basic.py
