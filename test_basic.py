@@ -4,7 +4,7 @@ import unittest
 from web_api import create_app
 import json
 
-os.environ['FLASK_CONFIG'] = os.path.abspath('instance/config.yaml')
+os.environ['FLASK_CONFIG'] = os.path.abspath('config-debug.yaml')
 app = create_app(debug=False, raise_errors=False)
 
 # from web_api import create_app
@@ -16,7 +16,7 @@ class BasicTests(unittest.TestCase):
 
     # executed after each test
     def tearDown(self):
-       pass
+        pass
 
     def test_main_page(self):
         response = self.app.get('/ping', follow_redirects=True)
