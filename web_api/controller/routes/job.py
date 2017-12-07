@@ -8,9 +8,14 @@ bp = security.SecureBlueprint('job', __name__)
 
 class JobView(MethodView):
     def get(self, id=None):
-        job = db.session.query(Job).filter_by(id=id).first()
-        errors.QueryError.raise_assert(job is not None, 'job not found')
-        return jsonify(job.to_dict(bids=True))
+        if (id is not None):
+            job = db.session.query(Job).filter_by(id=id).first()
+            errors.QueryError.raise_assert(job is not None, 'job not found')
+            return jsonify(job.to_dict(bids=True))
+        else:
+            jobs = db.session.query(Job).filter_by(is_active=True).all()
+            return jsonify([job.to_dict() for job in jobs])
+
 
     def post(self):
         body = request.json
@@ -57,7 +62,7 @@ class JobView(MethodView):
         pass
 
 job_view = JobView.as_view('job_view')
-bp.add_url_rule('/', view_func=job_view, methods=['POST'])
+bp.add_url_rule('/', view_func=job_view, methods=['POST','GET'])
 bp.add_url_rule('/<int:id>', view_func=job_view, methods=['GET','PUT','PATCH','DELETE'])
 
 # # TODO: convert to pluggable view

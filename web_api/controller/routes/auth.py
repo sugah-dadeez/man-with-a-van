@@ -18,7 +18,6 @@ def check_token():
         'user': g.current_user.username,
     })
 
-
 @bp.route('/login', methods=['POST'])
 def login():
     logger.info('logging in')

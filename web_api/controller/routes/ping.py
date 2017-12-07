@@ -1,4 +1,4 @@
-from flask import jsonify, Blueprint
+from flask import jsonify, Blueprint, current_app
 
 bp = Blueprint('ping', __name__)
 

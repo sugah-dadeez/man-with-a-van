@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TAG_NAME=gcr.io/$PROJECT_ID/sugah_dadeez_api:v2
+TAG_NAME=gcr.io/$PROJECT_ID/sugah_dadeez_api:v3
 IMG_NAME=sugah_dadeez_api
 
 
@@ -30,6 +30,7 @@ case "$1" in
   deploy)
     echo "deploying"
     kubectl set image deployment/sugah-dadeez sugah-dadeez=$TAG_NAME
+    ;;
 
   kill)
     echo "killing"

@@ -2,7 +2,6 @@ import logging
 import os
 import yaml
 from flask import Flask
-# from flask.ext.autodoc import Autodoc
 from flask_cors import CORS
 from .controller import routes, helpers, errors
 from .models import db
