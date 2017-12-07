@@ -1,0 +1,9 @@
+external_url: http://localhost:8080
+secret_key: test_key
+gcp_project_id: secure-outpost-166114
+twilio:
+  account_sid: test
+  auth_token: test
+  from_number: test
+db:
+  url: sqlite:///../local.db
