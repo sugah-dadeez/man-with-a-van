@@ -3,6 +3,10 @@
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
 version: 2
+machine:
+  python:
+    version: pypy-3.4.4
+    
 jobs:
   build:
     docker:
