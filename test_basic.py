@@ -27,7 +27,7 @@ class BasicTests(unittest.TestCase):
         auth_payload = {'username':'bob','password':'bob_pwd','is_verified':True}
         response = self.app.post('/auth/signup', data=auth_payload,
                                 follow_redirects=True)
-        # print(json.loads(response.data))
+        print(json.loads(response))
         self.assertEqual(response.status_code, 200)
 
 def run():
