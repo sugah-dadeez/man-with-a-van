@@ -8,4 +8,5 @@ install: pip install -r requirements.txt
 #   - psql -c ‘create database wemove_primary;’ -U postgres
 
 script:
+  - python -c "import os; print(os.getcwd())"
   - python test_basic.py
