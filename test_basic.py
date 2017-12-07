@@ -18,15 +18,16 @@ class BasicTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_main_page(self):
+    def test_ping(self):
         response = self.app.get('/ping', follow_redirects=True)
         print(json.loads(response.data))
         self.assertEqual(response.status_code, 200)
 
-    # def test_main_page(self):
-    #     response = self.app.get('/ping', follow_redirects=True)
-    #     print(json.loads(response.data))
-    #     self.assertEqual(response.status_code, 200)
+    def test_auth(self):
+        auth_payload = {'username':bob,'password':bob_pwd}
+        response = self.app.post('/auth/signup', auth_payload)
+        # print(json.loads(response.data))
+        self.assertEqual(response.status_code, 200)
 
 def run():
     unittest.main()

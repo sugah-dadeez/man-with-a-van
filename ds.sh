@@ -1,7 +1,9 @@
 #!/bin/sh
 
-#IMG_NAME=gcr.io/$PROJECT_ID/sugah_dadeez_api:v1
+TAG_NAME=gcr.io/$PROJECT_ID/sugah_dadeez_api:v2
 IMG_NAME=sugah_dadeez_api
+
+
 
 case "$1" in
   build)
@@ -13,6 +15,21 @@ case "$1" in
       docker rmi $(docker images -f "dangling=true" -q)
     fi
     ;;
+
+  push)
+    echo "pushing"
+    docker tag $IMG_NAME $TAG_NAME
+    if [[ ! -z $(docker images -f "dangling=true" -q) ]]
+    then
+      echo "Deleting dangling images"
+      docker rmi $(docker images -f "dangling=true" -q)
+    fi
+    gcloud docker -- push $TAG_NAME
+    ;;
+
+  deploy)
+    echo "deploying"
+    kubectl set image deployment/sugah-dadeez sugah-dadeez=$TAG_NAME
 
   kill)
     echo "killing"
