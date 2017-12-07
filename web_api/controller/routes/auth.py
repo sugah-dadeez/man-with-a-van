@@ -50,9 +50,9 @@ def login():
 def signup():
     body = request.json
 
-    if 'username' not in body or 'password' not in body:
-        return jsonify({'code': 'USRNAME, PWD'})
-        raise errors.APIError('username and password required')
+    # if 'username' not in body or 'password' not in body:
+    #     return jsonify({'code': 'USRNAME, PWD'})
+    #     raise errors.APIError('username and password required')
 
     # u = db.session.query(User).filter_by(username=body['username']).first()
     #
