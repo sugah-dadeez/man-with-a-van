@@ -1,32 +1,56 @@
 #project/test_basic.py
 
+# import os
+# import unittest
+# import web_api
+# import json
+#
+# # os.environ['FLASK_CONFIG'] = os.path.abspath('instance/config.yaml')
+# # app = web_api.create_app(debug=False, raise_errors=False)
+# #
+# # # from web_api import create_app
+# #
+# # class BasicTests(unittest.TestCase):
+#    # executed prior to each test
+#    # def setUp(self):
+#    #     self.app = app
+#    #     self.app = app.test_client()
+#    #
+#    # # executed after each test
+#    # def tearDown(self):
+#    #     pass
+#    #
+#    # def test_main_page(self):
+#    #     response = self.app.get('/ping', follow_redirects=True)
+#    #     print(json.loads(response.data))
+#    #     self.assertEqual(response.status_code, 200)
+#
+# # def run():
+# #     unittest.main()
+#
+# if __name__ == '__main__':
+#
+#     run()
+# project/test_basic.py
+
+
 import os
 import unittest
-import web_api
-import json
+class TestStringMethods(unittest.TestCase):
 
-os.environ['FLASK_CONFIG'] = os.path.abspath('instance/config.yaml')
-app = web_api.create_app(debug=False, raise_errors=False)
+   def test_upper(self):
+        self.assertEqual(‘foo’.upper(), ‘FOO’)
 
-# from web_api import create_app
+   def test_isupper(self):
+        self.assertTrue(‘FOO’.isupper())
+        self.assertFalse(‘Foo’.isupper())
 
-class BasicTests(unittest.TestCase):
-   # executed prior to each test
-   def setUp(self):
-       self.app = app
-       self.app = app.test_client()
+   def test_split(self):
+        s = ‘hello world’
+        self.assertEqual(s.split(), [‘hello’, ‘world’])
+        # check that s.split fails when the separator is not a string
+        with self.assertRaises(TypeError):
+            s.split(2)
 
-   # executed after each test
-   def tearDown(self):
-       pass
-
-   def test_main_page(self):
-       response = self.app.get('/ping', follow_redirects=True)
-       print(json.loads(response.data))
-       self.assertEqual(response.status_code, 200)
-
-def run():
+if __name__ == ‘__main__‘:
     unittest.main()
-
-if __name__ == '__main__':
-    run()
