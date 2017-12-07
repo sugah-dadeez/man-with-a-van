@@ -52,7 +52,7 @@ def configure_app(app):
     assert 'FLASK_CONFIG' in os.environ, 'missing FLASK_CONFIG in environment'
     fp = os.environ.get('FLASK_CONFIG')
 
-    if (not os.path.exists(fp))):
+    if (not os.path.exists(fp)):
         logger.debug('CANNOT FIND FLASK CONFIG "{fp}"'.format(fp=fp))
     # assert, 'bad flask config "fp"'
     logger.debug('reading config "{fp}"'.format(fp=fp))
